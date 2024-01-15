@@ -61,3 +61,7 @@ _local/
 
 \.vscode/
 appredict_lookup_table_manifest.txt
+
+CMakeFiles/
+.cache/
+compile_commands.json
