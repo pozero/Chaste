@@ -1,6 +1,6 @@
 #include "PolarityForce.hpp"
 
-PolarityForce::PolarityForce() : mSelfPropellingParameter(1.0)
+PolarityForce::PolarityForce() : mSelfPropellingParameter(0.5)
 {
 }
 
