@@ -1,5 +1,5 @@
-#ifndef TESTMYNAGAIHONDAFORCEPOLARITYFORCEWITHRANDOMPOLARITY_HPP_
-#define TESTMYNAGAIHONDAFORCEPOLARITYFORCEWITHRANDOMPOLARITY_HPP_
+#ifndef TESTPOLARITYFORCEWITHSOCIALITY_HPP_
+#define TESTPOLARITYFORCEWITHSOCIALITY_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "AbstractCellBasedTestSuite.hpp"
@@ -14,10 +14,10 @@
 #include "MyNagaiHondaForce.hpp"
 #include "FixedTargetAreaModifier.hpp"
 #include "PolarityForce.hpp"
-#include "SimplePolarityModifier.hpp"
+#include "PolarityModifier.hpp"
 #include "ParameterReader.hpp"
 
-void ParamterizedTestPolarityForceWithRandomPolarity(std::string const& path)
+void ParameterizedTestPolarityForceWithSociality(std::string const& path)
 {
     try
     {
@@ -26,16 +26,17 @@ void ParamterizedTestPolarityForceWithRandomPolarity(std::string const& path)
         reader.parse(file_finder.GetAbsolutePath());
 
         /*
-         *  cell_col: 5
-         *  cell_row: 5
-         *  sampling_time_multiple: 200
+         *  cell_col: 6
+         *  cell_row: 6
+         *  sampling_time_multiple: 50
          *  end_time: 20
          *  nagai_honda_deformation_energy_parameter: 100
          *  nagai_honda_membrane_surface_energy_parameter: 10
          *  self_propelling_parameter: 1
          *  target_area_parent_normal_mean: 1
-         *  target_area_parent_normal_variance: 1
-         *  polarity_delta: 1
+         *  target_area_parent_normal_variance: 0.5
+         *  neightbor_alignment_intensity: 0.05
+         *  shape_alignment_intensity: 0.1
          */
 
         READ_PARAMETER(reader, unsigned, cell_col);
@@ -47,7 +48,9 @@ void ParamterizedTestPolarityForceWithRandomPolarity(std::string const& path)
         READ_PARAMETER(reader, double, self_propelling_parameter);
         READ_PARAMETER(reader, double, target_area_parent_normal_mean);
         READ_PARAMETER(reader, double, target_area_parent_normal_variance);
-        READ_PARAMETER(reader, double, polarity_delta);
+        READ_PARAMETER(reader, double, shape_index);
+        READ_PARAMETER(reader, double, neightbor_alignment_intensity);
+        READ_PARAMETER(reader, double, shape_alignment_intensity);
 
         HoneycombVertexMeshGenerator generator{ cell_col, cell_row };
         MutableVertexMesh<2, 2>* p_mesh = generator.GetMesh();
@@ -78,11 +81,14 @@ void ParamterizedTestPolarityForceWithRandomPolarity(std::string const& path)
         MAKE_PTR(FixedTargetAreaModifier<2>, p_fixed_target_area_modifier);
         p_fixed_target_area_modifier->SetParentNormalMean(target_area_parent_normal_mean);
         p_fixed_target_area_modifier->SetParentNormalVariance(target_area_parent_normal_variance);
+        p_fixed_target_area_modifier->SetShapeIndex(shape_index);
         simulator.AddSimulationModifier(p_fixed_target_area_modifier);
 
-        MAKE_PTR(SimplePolarityModifier, p_simple_polarity_modifier);
-        p_simple_polarity_modifier->SetPolarityDelta(polarity_delta);
-        simulator.AddSimulationModifier(p_simple_polarity_modifier);
+        MAKE_PTR(PolarityModifier, p_polarity_modifier);
+        p_polarity_modifier->SetNeighborAlignmentIntensity(neightbor_alignment_intensity);
+        p_polarity_modifier->SetShapeAlignmentIntensity(shape_alignment_intensity);
+        p_polarity_modifier->SetDt(simulator.GetDt());
+        simulator.AddSimulationModifier(p_polarity_modifier);
 
         simulator.Solve();
 
@@ -95,28 +101,12 @@ void ParamterizedTestPolarityForceWithRandomPolarity(std::string const& path)
     }
 }
 
-class TestPolarityForceWithRandomPolarity : public AbstractCellBasedTestSuite
+class TestPolarityForceWithSociality : public AbstractCellBasedTestSuite
 {
 public:
-    void TestPolarityForceWithRandomPolarity1()
-    {
-        ParamterizedTestPolarityForceWithRandomPolarity("cell_based/test/pozero/data/PolarityForceWithRandomPolarity1");
-    }
-
-    void TestPolarityForceWithRandomPolarity2()
-    {
-        ParamterizedTestPolarityForceWithRandomPolarity("cell_based/test/pozero/data/PolarityForceWithRandomPolarity2");
-    }
-
-    void TestPolarityForceWithRandomPolarity3()
-    {
-        ParamterizedTestPolarityForceWithRandomPolarity("cell_based/test/pozero/data/PolarityForceWithRandomPolarity3");
-    }
-
-    void TestPolarityForceWithRandomPolarity4()
-    {
-        ParamterizedTestPolarityForceWithRandomPolarity("cell_based/test/pozero/data/PolarityForceWithRandomPolarity4");
-    }
+    void TestPolarityForceWithSociality1() { ParameterizedTestPolarityForceWithSociality("cell_based/test/pozero/data/PolarityForceWithSociality1"); }
+    void TestPolarityForceWithSociality2() { ParameterizedTestPolarityForceWithSociality("cell_based/test/pozero/data/PolarityForceWithSociality2"); }
+    void TestPolarityForceWithSociality3() { ParameterizedTestPolarityForceWithSociality("cell_based/test/pozero/data/PolarityForceWithSociality3"); }
 };
 
-#endif /*TESTMYNAGAIHONDAFORCEPOLARITYFORCEWITHRANDOMPOLARITY_HPP_*/
+#endif

@@ -1,19 +1,16 @@
 #include "SimplePolarityModifier.hpp"
 #include "RandomNumberGenerator.hpp"
 
-template <unsigned DIM>
-SimplePolarityModifier<DIM>::SimplePolarityModifier()
+SimplePolarityModifier::SimplePolarityModifier()
         : mPolarityDelta(1.0)
 {
 }
 
-template <unsigned DIM>
-SimplePolarityModifier<DIM>::~SimplePolarityModifier()
+SimplePolarityModifier::~SimplePolarityModifier()
 {
 }
 
-template <unsigned DIM>
-void SimplePolarityModifier<DIM>::UpdateAtEndOfTimeStep(AbstractCellPopulation<DIM, DIM>& rCellPopulation)
+void SimplePolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPopulation)
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     for (CellPtr p_cell : rCellPopulation.rGetCells())
@@ -25,8 +22,7 @@ void SimplePolarityModifier<DIM>::UpdateAtEndOfTimeStep(AbstractCellPopulation<D
     }
 }
 
-template <unsigned DIM>
-void SimplePolarityModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM, DIM>& rCellPopulation, std::string outputDirectory)
+void SimplePolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, std::string outputDirectory)
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     for (CellPtr p_cell : rCellPopulation.rGetCells())
@@ -36,28 +32,18 @@ void SimplePolarityModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM, DIM>& r
     }
 }
 
-template <unsigned DIM>
-void SimplePolarityModifier<DIM>::OutputSimulationModifierParameters(out_stream& rParamsFile)
+void SimplePolarityModifier::OutputSimulationModifierParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<PolarityDelta>" << mPolarityDelta << "</PolarityDelta>\n";
-    AbstractCellBasedSimulationModifier<DIM>::OutputSimulationModifierParameters(rParamsFile);
+    AbstractCellBasedSimulationModifier<2>::OutputSimulationModifierParameters(rParamsFile);
 }
 
-template <unsigned DIM>
-double SimplePolarityModifier<DIM>::GetPolarityDelta() const
+double SimplePolarityModifier::GetPolarityDelta() const
 {
     return mPolarityDelta;
 }
 
-template <unsigned DIM>
-void SimplePolarityModifier<DIM>::SetPolarityDelta(double newParam)
+void SimplePolarityModifier::SetPolarityDelta(double newParam)
 {
     mPolarityDelta = newParam;
 }
-
-template class SimplePolarityModifier<1>;
-template class SimplePolarityModifier<2>;
-template class SimplePolarityModifier<3>;
-
-#include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(SimplePolarityModifier)

@@ -6,7 +6,8 @@
 template <unsigned DIM>
 FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier() : AbstractCellBasedSimulationModifier<DIM>(),
                                                           mParentNormalMean(1.0),
-                                                          mParentNormalVariance(1.0)
+                                                          mParentNormalVariance(1.0),
+                                                          mShapeIndex(sqrt(24.0 / sqrt(3.0)))
 {
 }
 
@@ -94,6 +95,12 @@ double FixedTargetAreaModifier<DIM>::GetParentNormalVariance() const
 }
 
 template <unsigned DIM>
+double FixedTargetAreaModifier<DIM>::GetShapeIndex() const
+{
+    return mShapeIndex;
+}
+
+template <unsigned DIM>
 void FixedTargetAreaModifier<DIM>::SetParentNormalMean(double newParam)
 {
     mParentNormalMean = newParam;
@@ -103,6 +110,12 @@ template <unsigned DIM>
 void FixedTargetAreaModifier<DIM>::SetParentNormalVariance(double newParam)
 {
     mParentNormalVariance = newParam;
+}
+
+template <unsigned DIM>
+void FixedTargetAreaModifier<DIM>::SetShapeIndex(double newParam)
+{
+    mShapeIndex = newParam;
 }
 
 template class FixedTargetAreaModifier<1>;

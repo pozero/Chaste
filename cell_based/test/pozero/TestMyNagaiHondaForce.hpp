@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "AbstractCellBasedTestSuite.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
+#include "VoronoiVertexMeshGenerator.hpp"
 #include "Cell.hpp"
 #include "SmartPointers.hpp"
 #include "TransitCellProliferativeType.hpp"

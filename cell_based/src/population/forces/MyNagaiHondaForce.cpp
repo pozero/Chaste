@@ -57,7 +57,7 @@ void MyNagaiHondaForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>& r
     {
         c_vector<double, DIM> deformation_contribution = zero_vector<double>(DIM);
         c_vector<double, DIM> membrane_surface_tension_contribution = zero_vector<double>(DIM);
-        std::set<unsigned> const relavant_elem_indices = p_cell_population->GetNode(node_idx)->rGetContainingElementIndices();
+        std::set<unsigned> const& relavant_elem_indices = p_cell_population->GetNode(node_idx)->rGetContainingElementIndices();
         for (std::set<unsigned>::const_iterator iter = relavant_elem_indices.begin();
              iter != relavant_elem_indices.end();
              ++iter)

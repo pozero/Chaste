@@ -23,11 +23,14 @@ private:
         archive& boost::serialization::base_object<AbstractCellBasedSimulationModifier>(*this);
         archive & mParentNormalMean;
         archive & mParentNormalVariance;
+        archive & mShapeIndex;
     }
 
     double mParentNormalMean;
 
     double mParentNormalVariance;
+
+    double mShapeIndex;
 
     double TruncatedNormal() const;
 
@@ -50,9 +53,13 @@ public:
 
     double GetParentNormalVariance() const;
 
+    double GetShapeIndex() const;
+
     void SetParentNormalMean(double newParam);
 
     void SetParentNormalVariance(double newParam);
+
+    void SetShapeIndex(double newParam);
 };
 
 #include "SerializationExportWrapper.hpp"

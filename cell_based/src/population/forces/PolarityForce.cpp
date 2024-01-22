@@ -41,7 +41,7 @@ void PolarityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulat
     for (unsigned node_idx = 0; node_idx < num_nodes; ++node_idx)
     {
         c_vector<double, 2> active_force = zero_vector<double>(2);
-        std::set<unsigned> const relavant_elem_indices = p_cell_population->GetNode(node_idx)->rGetContainingElementIndices();
+        std::set<unsigned> const& relavant_elem_indices = p_cell_population->GetNode(node_idx)->rGetContainingElementIndices();
         double const scalar = mSelfPropellingParameter / static_cast<double>(relavant_elem_indices.size());
         for (std::set<unsigned>::const_iterator iter = relavant_elem_indices.begin();
              iter != relavant_elem_indices.end();
