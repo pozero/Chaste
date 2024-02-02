@@ -96,6 +96,5 @@ tutorial/TestRunningTumourSpheroidSimulationsTutorial.hpp
 tutorial/TestRunningVertexBasedSimulationsTutorial.hpp
 tutorial/TestVisualizingWithParaviewTutorial.hpp
 
-pozero/TestPolarityForceWithRandomPolarity.hpp
+pozero/TestVoronoiGenerator.hpp
 pozero/TestPolarityForceWithSociality.hpp
-pozero/TestMyNagaiHondaForce.hpp

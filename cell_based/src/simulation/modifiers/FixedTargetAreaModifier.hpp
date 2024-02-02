@@ -1,9 +1,9 @@
 #ifndef FIXEDTARGETAREAMODIFIER_HPP_
 #define FIXEDTARGETAREAMODIFIER_HPP_
 
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
 #include "AbstractCellBasedSimulationModifier.hpp"
+
+#include <vector>
 
 #define FIXED_TARGET_AREA_SIZE_TAG "fixed target area size tag"
 
@@ -15,16 +15,11 @@ template <unsigned DIM>
 class FixedTargetAreaModifier : public AbstractCellBasedSimulationModifier<DIM, DIM>
 {
 private:
-    friend class boost::serialization::access;
+    std::vector<double> mCellTargetArea;
 
-    template <class Archive>
-    void serialization(Archive& archive, const unsigned int version)
-    {
-        archive& boost::serialization::base_object<AbstractCellBasedSimulationModifier>(*this);
-        archive & mParentNormalMean;
-        archive & mParentNormalVariance;
-        archive & mShapeIndex;
-    }
+    std::vector<double> mCellTargetPerimeter;
+
+    std::vector<double> mCellTargetAreaCategory;
 
     double mParentNormalMean;
 
@@ -39,7 +34,7 @@ private:
     double TruncatedNormalQuantile(double phi_a, double phi_b, double precentage) const;
 
 public:
-    FixedTargetAreaModifier();
+    FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double shape_index);
 
     virtual ~FixedTargetAreaModifier();
 
@@ -61,8 +56,5 @@ public:
 
     void SetShapeIndex(double newParam);
 };
-
-#include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(FixedTargetAreaModifier)
 
 #endif /*FIXEDTARGETAREAMODIFIER_HPP_*/

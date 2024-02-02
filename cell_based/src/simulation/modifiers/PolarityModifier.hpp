@@ -21,11 +21,9 @@ private:
 
     double mShapeAlignmentIntensity;
 
-    // double mProtrusionAlignmentIntensity;
+    double mProtrusionAlignmentIntensity;
 
     double mDt;
-
-    // std::vector<c_vector<double, 2> > mCellOutwradVectorSum{};
 
 public:
     PolarityModifier();
@@ -42,13 +40,13 @@ public:
 
     double GetShapeAlignmentIntensity() const;
 
-    // double GetProtrusionAlignmentIntensity() const;
+    double GetProtrusionAlignmentIntensity() const;
 
     void SetNeighborAlignmentIntensity(double newParam);
 
     void SetShapeAlignmentIntensity(double newParam);
 
-    // void SetProtrusionAlignmentIntensity(double newParam);
+    void SetProtrusionAlignmentIntensity(double newParam);
 
     void SetDt(double dt);
 };

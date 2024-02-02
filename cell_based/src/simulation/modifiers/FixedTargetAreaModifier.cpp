@@ -4,11 +4,39 @@
 #include <boost/math/special_functions/erf.hpp>
 
 template <unsigned DIM>
-FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier() : AbstractCellBasedSimulationModifier<DIM>(),
-                                                          mParentNormalMean(1.0),
-                                                          mParentNormalVariance(1.0),
-                                                          mShapeIndex(sqrt(24.0 / sqrt(3.0)))
+FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double shape_index) : AbstractCellBasedSimulationModifier<DIM>(),
+                                                                                                                                                           mCellTargetArea(cell_count, 0.0),
+                                                                                                                                                           mCellTargetPerimeter(cell_count, 0.0),
+                                                                                                                                                           mCellTargetAreaCategory(cell_count, 0.0),
+                                                                                                                                                           mParentNormalMean(parent_normal_mean),
+                                                                                                                                                           mParentNormalVariance(parent_normal_variance),
+                                                                                                                                                           mShapeIndex(shape_index)
 {
+
+    double const phi_0 = ParentNormalCDF(0.0);
+    double const phi_pos_inf = 1.0;
+    double const quantile_33 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.33);
+    double const quantile_66 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.66);
+    for (unsigned int i = 0; i < cell_count; ++i)
+    {
+        double const SHAPE_INDEX = sqrt(24.0 / sqrt(3.0));
+        double const target_area = TruncatedNormal();
+        double const target_perimeter = SHAPE_INDEX * sqrt(target_area);
+        mCellTargetArea[i] = target_area;
+        mCellTargetPerimeter[i] = target_perimeter;
+        if (target_area <= quantile_33)
+        {
+            mCellTargetAreaCategory[i] = FIXED_TARGET_AREA_SMALL;
+        }
+        else if (target_area <= quantile_66)
+        {
+            mCellTargetAreaCategory[i] = FIXED_TARGET_AREA_MEDIUM;
+        }
+        else /* target_area > quantile_66 */
+        {
+            mCellTargetAreaCategory[i] = FIXED_TARGET_AREA_LARGE;
+        }
+    }
 }
 
 template <unsigned DIM>
@@ -48,29 +76,13 @@ double FixedTargetAreaModifier<DIM>::TruncatedNormalQuantile(double phi_a, doubl
 template <unsigned DIM>
 void FixedTargetAreaModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM, DIM>& rCellPopulation, std::string outputDirectory)
 {
-    double const phi_0 = ParentNormalCDF(0.0);
-    double const phi_pos_inf = 1.0;
-    double const quantile_33 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.33);
-    double const quantile_66 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.66);
+    unsigned int idx = 0;
     for (CellPtr p_cell : rCellPopulation.rGetCells())
     {
-        double const SHAPE_INDEX = sqrt(24.0 / sqrt(3.0));
-        double const target_area = TruncatedNormal();
-        double const target_perimeter = SHAPE_INDEX * sqrt(target_area);
-        p_cell->GetCellData()->SetItem("target area", target_area);
-        p_cell->GetCellData()->SetItem("target perimeter", target_perimeter);
-        if (target_area <= quantile_33)
-        {
-            p_cell->GetCellData()->SetItem(FIXED_TARGET_AREA_SIZE_TAG, FIXED_TARGET_AREA_SMALL);
-        }
-        else if (target_area <= quantile_66)
-        {
-            p_cell->GetCellData()->SetItem(FIXED_TARGET_AREA_SIZE_TAG, FIXED_TARGET_AREA_MEDIUM);
-        }
-        else /* target_area > quantile_66 */
-        {
-            p_cell->GetCellData()->SetItem(FIXED_TARGET_AREA_SIZE_TAG, FIXED_TARGET_AREA_LARGE);
-        }
+        p_cell->GetCellData()->SetItem("target area", mCellTargetArea[idx]);
+        p_cell->GetCellData()->SetItem("target perimeter", mCellTargetPerimeter[idx]);
+        p_cell->GetCellData()->SetItem(FIXED_TARGET_AREA_SIZE_TAG, mCellTargetAreaCategory[idx]);
+        ++idx;
     }
 }
 
@@ -121,6 +133,3 @@ void FixedTargetAreaModifier<DIM>::SetShapeIndex(double newParam)
 template class FixedTargetAreaModifier<1>;
 template class FixedTargetAreaModifier<2>;
 template class FixedTargetAreaModifier<3>;
-
-#include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(FixedTargetAreaModifier);

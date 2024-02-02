@@ -11,6 +11,7 @@
 #include "NoCellCycleModel.hpp"
 #include "VertexBasedCellPopulation.hpp"
 #include "OffLatticeSimulation.hpp"
+#include "InelasticalCircleBoundaryCondition.hpp"
 #include "MyNagaiHondaForce.hpp"
 #include "FixedTargetAreaModifier.hpp"
 #include "PolarityForce.hpp"
@@ -26,18 +27,20 @@ void ParameterizedTestPolarityForceWithSociality(std::string const& path)
         reader.parse(file_finder.GetAbsolutePath());
 
         /*
-         *  cell_col: 6
-         *  cell_row: 6
-         *  sampling_time_multiple: 50
-         *  end_time: 20
-         *  nagai_honda_deformation_energy_parameter: 100
-         *  nagai_honda_membrane_surface_energy_parameter: 10
-         *  self_propelling_parameter: 1
-         *  target_area_parent_normal_mean: 1
-         *  target_area_parent_normal_variance: 0.5
-         *  neightbor_alignment_intensity: 0.05
-         *  shape_alignment_intensity: 0.1
-         */
+            cell_col: 6
+            cell_row: 6
+            sampling_time_multiple: 50
+            end_time: 20
+            nagai_honda_deformation_energy_parameter: 10
+            nagai_honda_membrane_surface_energy_parameter: 2
+            self_propelling_parameter: 1
+            target_area_parent_normal_mean: 1
+            target_area_parent_normal_variance: 0.2
+            shape_index: 1.0
+            neightbor_alignment_intensity: 0.5
+            shape_alignment_intensity: 1
+            protrusion_alignment_intensity: 35
+            */
 
         READ_PARAMETER(reader, unsigned, cell_col);
         READ_PARAMETER(reader, unsigned, cell_row);
@@ -51,6 +54,7 @@ void ParameterizedTestPolarityForceWithSociality(std::string const& path)
         READ_PARAMETER(reader, double, shape_index);
         READ_PARAMETER(reader, double, neightbor_alignment_intensity);
         READ_PARAMETER(reader, double, shape_alignment_intensity);
+        READ_PARAMETER(reader, double, protrusion_alignment_intensity);
 
         HoneycombVertexMeshGenerator generator{ cell_col, cell_row };
         MutableVertexMesh<2, 2>* p_mesh = generator.GetMesh();
@@ -69,6 +73,18 @@ void ParameterizedTestPolarityForceWithSociality(std::string const& path)
         simulator.SetSamplingTimestepMultiple(sampling_time_multiple);
         simulator.SetEndTime(end_time);
 
+        c_vector<double, 2> boundary_center = zero_vector<double>(2);
+        double biggest_width = std::numeric_limits<double>::min();
+        biggest_width = std::max(cell_population.GetWidth(0), biggest_width);
+        biggest_width = std::max(cell_population.GetWidth(1), biggest_width);
+        double const boundary_radius = (sqrt(2.0) / 2.0) * biggest_width;
+        boundary_center[0] = boundary_radius * 0.5 + 1.0;
+        boundary_center[1] = boundary_radius * 0.5 + 1.0;
+        boost::shared_ptr<InelasticalCircleBoundaryCondition> p_inelastical_circle_boundary_condition{
+            new InelasticalCircleBoundaryCondition(&cell_population, boundary_center, boundary_radius)
+        };
+        simulator.AddCellPopulationBoundaryCondition(p_inelastical_circle_boundary_condition);
+
         MAKE_PTR(MyNagaiHondaForce<2>, p_nagai_honda_force);
         p_nagai_honda_force->SetDeformationEnergyParameter(nagai_honda_deformation_energy_parameter);
         p_nagai_honda_force->SetMembraneSurfaceEnergyParameter(nagai_honda_membrane_surface_energy_parameter);
@@ -78,15 +94,13 @@ void ParameterizedTestPolarityForceWithSociality(std::string const& path)
         p_polarity_force->SetSelfPropellingParameter(self_propelling_parameter);
         simulator.AddForce(p_polarity_force);
 
-        MAKE_PTR(FixedTargetAreaModifier<2>, p_fixed_target_area_modifier);
-        p_fixed_target_area_modifier->SetParentNormalMean(target_area_parent_normal_mean);
-        p_fixed_target_area_modifier->SetParentNormalVariance(target_area_parent_normal_variance);
-        p_fixed_target_area_modifier->SetShapeIndex(shape_index);
+        boost::shared_ptr<FixedTargetAreaModifier<2> > p_fixed_target_area_modifier{ new FixedTargetAreaModifier<2>{ cell_col * cell_row, target_area_parent_normal_mean, target_area_parent_normal_variance, shape_index } };
         simulator.AddSimulationModifier(p_fixed_target_area_modifier);
 
         MAKE_PTR(PolarityModifier, p_polarity_modifier);
         p_polarity_modifier->SetNeighborAlignmentIntensity(neightbor_alignment_intensity);
         p_polarity_modifier->SetShapeAlignmentIntensity(shape_alignment_intensity);
+        p_polarity_modifier->SetProtrusionAlignmentIntensity(protrusion_alignment_intensity);
         p_polarity_modifier->SetDt(simulator.GetDt());
         simulator.AddSimulationModifier(p_polarity_modifier);
 
