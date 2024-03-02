@@ -44,11 +44,11 @@ PolarityModifier::~PolarityModifier()
 void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPopulation)
 {
     double const one_dt = 1.0 / mDt;
-    VertexBasedCellPopulation<2>* p_cell_population = static_cast<VertexBasedCellPopulation<2>*>(&rCellPopulation);
+    VertexBasedCellPopulation<2>* p_cell_population = dynamic_cast<VertexBasedCellPopulation<2>*>(&rCellPopulation);
     unsigned const num_cells = p_cell_population->GetNumElements();
     std::vector<double> velocity_thetas(num_cells);
-    std::vector<c_vector<double, 2> > cell_last_centroid(num_cells);
-    std::vector<c_vector<double, 2> > cell_centroid(num_cells);
+    std::vector<c_vector<double, 2> > cell_last_centroid(num_cells, c_vector<double, 2>{});
+    std::vector<c_vector<double, 2> > cell_centroid(num_cells, c_vector<double, 2>{});
     for (typename VertexMesh<2, 2>::VertexElementIterator elem_iter = p_cell_population->rGetMesh().GetElementIteratorBegin();
          elem_iter != p_cell_population->rGetMesh().GetElementIteratorEnd();
          ++elem_iter)
@@ -76,19 +76,42 @@ void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPop
     }
 
     unsigned const num_nodes = p_cell_population->GetNumNodes();
-    std::vector<c_vector<double, 2> > node_last_location(num_nodes);
+    std::vector<c_vector<double, 2> > node_last_location(num_nodes, c_vector<double, 2>{});
     for (unsigned node_idx = 0; node_idx < num_nodes; ++node_idx)
     {
         Node<2>* node = p_cell_population->GetNode(node_idx);
-        c_vector<double, 2> const current_location = node->rGetLocation();
+        c_vector<double, 2> const& current_location = node->rGetLocation();
         std::vector<double>& node_attributes = node->rGetNodeAttributes();
-        c_vector<double, 2> last_location = zero_vector<double>(2);
-        last_location[0] = node_attributes[0];
-        last_location[1] = node_attributes[1];
-        node_last_location[node_idx] = last_location;
-        c_vector<double, 2> const velocity = (current_location - last_location) * one_dt;
-        node_attributes[2] = velocity[0];
-        node_attributes[3] = velocity[1];
+        if (node_attributes.size() == 6)
+        {
+            c_vector<double, 2> last_location = zero_vector<double>(2);
+            last_location[0] = node_attributes[0];
+            last_location[1] = node_attributes[1];
+            node_last_location[node_idx] = last_location;
+            c_vector<double, 2> const displacement = current_location - last_location;
+            c_vector<double, 2> const velocity = displacement * one_dt;
+            node_attributes[0] = current_location[0];
+            node_attributes[1] = current_location[1];
+            node_attributes[2] = velocity[0];
+            node_attributes[3] = velocity[1];
+            node_attributes[4] = displacement[0];
+            node_attributes[5] = displacement[1];
+        }
+        else if (node_attributes.empty())
+        {
+            // new node
+            node_last_location[node_idx] = current_location;
+            node->AddNodeAttribute(current_location[0]);
+            node->AddNodeAttribute(current_location[1]);
+            node->AddNodeAttribute(0.0);
+            node->AddNodeAttribute(0.0);
+            node->AddNodeAttribute(0.0);
+            node->AddNodeAttribute(0.0);
+        }
+        else
+        {
+            EXCEPTION("Incomplete node with " << node_attributes.size() << " attributes found.");
+        }
     }
 
     for (typename VertexMesh<2, 2>::VertexElementIterator elem_iter = p_cell_population->rGetMesh().GetElementIteratorBegin();
@@ -108,8 +131,8 @@ void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPop
         double biggest_protrusion_theta = std::numeric_limits<double>::min();
         for (unsigned i = 0; i < node_cnt; ++i)
         {
-            std::set<unsigned> const& relavant_node_idx = elem_iter->GetNode(i)->rGetContainingElementIndices();
-            neighbor_elem_indices.insert(relavant_node_idx.begin(), relavant_node_idx.end());
+            std::set<unsigned> const& relavant_elem_idx = elem_iter->GetNode(i)->rGetContainingElementIndices();
+            neighbor_elem_indices.insert(relavant_elem_idx.begin(), relavant_elem_idx.end());
 
             unsigned next_i = (i + 1) % node_cnt;
             c_vector<double, 2> const next_node_location = elem_iter->GetNodeLocation(next_i);
@@ -183,8 +206,13 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
     {
         Node<2>* node = p_cell_population->GetNode(node_idx);
         c_vector<double, 2> const node_location = node->rGetLocation();
+        // location
         node->AddNodeAttribute(node_location[0]);
         node->AddNodeAttribute(node_location[1]);
+        // velocity
+        node->AddNodeAttribute(0.0);
+        node->AddNodeAttribute(0.0);
+        // displacement
         node->AddNodeAttribute(0.0);
         node->AddNodeAttribute(0.0);
     }
@@ -192,10 +220,6 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
 
 void PolarityModifier::OutputSimulationModifierParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<NeighborAlignmentIntensity>" << mNeighborAlignmentIntensity << "</NeighborAlignmentIntensity>\n";
-    *rParamsFile << "\t\t\t<ShapeAlignmentIntensity>" << mShapeAlignmentIntensity << "</ShapeAlignmentIntensity>\n";
-    *rParamsFile << "\t\t\t<ProtrusionAlignmentIntensity>" << mProtrusionAlignmentIntensity << "</ProtrusionAlignmentIntensity>\n";
-    AbstractCellBasedSimulationModifier<2>::OutputSimulationModifierParameters(rParamsFile);
 }
 
 double PolarityModifier::GetNeighborAlignmentIntensity() const

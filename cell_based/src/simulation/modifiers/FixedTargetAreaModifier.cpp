@@ -19,9 +19,8 @@ FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier(unsigned cell_count, doubl
     double const quantile_66 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.66);
     for (unsigned int i = 0; i < cell_count; ++i)
     {
-        double const SHAPE_INDEX = sqrt(24.0 / sqrt(3.0));
         double const target_area = TruncatedNormal();
-        double const target_perimeter = SHAPE_INDEX * sqrt(target_area);
+        double const target_perimeter = mShapeIndex * sqrt(target_area);
         mCellTargetArea[i] = target_area;
         mCellTargetPerimeter[i] = target_perimeter;
         if (target_area <= quantile_33)
@@ -37,6 +36,14 @@ FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier(unsigned cell_count, doubl
             mCellTargetAreaCategory[i] = FIXED_TARGET_AREA_LARGE;
         }
     }
+}
+
+template <unsigned DIM>
+FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier(unsigned cell_count, double uniform_target_area, double shape_index) : AbstractCellBasedSimulationModifier<DIM>(),
+                                                                                                                             mCellTargetArea(cell_count, uniform_target_area),
+                                                                                                                             mCellTargetPerimeter(cell_count, shape_index * sqrt(uniform_target_area)),
+                                                                                                                             mCellTargetAreaCategory(cell_count, FIXED_TARGET_AREA_MEDIUM)
+{
 }
 
 template <unsigned DIM>
@@ -89,45 +96,6 @@ void FixedTargetAreaModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM, DIM>& 
 template <unsigned DIM>
 void FixedTargetAreaModifier<DIM>::OutputSimulationModifierParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<ParentNormalMean>" << mParentNormalMean << "</ParentNormalMean>\n";
-    *rParamsFile << "\t\t\t<ParentNormalVariance>" << mParentNormalVariance << "</ParentNormalVariance>\n";
-    AbstractCellBasedSimulationModifier<DIM>::OutputSimulationModifierParameters(rParamsFile);
-}
-
-template <unsigned DIM>
-double FixedTargetAreaModifier<DIM>::GetParentNormalMean() const
-{
-    return mParentNormalMean;
-}
-
-template <unsigned DIM>
-double FixedTargetAreaModifier<DIM>::GetParentNormalVariance() const
-{
-    return mParentNormalVariance;
-}
-
-template <unsigned DIM>
-double FixedTargetAreaModifier<DIM>::GetShapeIndex() const
-{
-    return mShapeIndex;
-}
-
-template <unsigned DIM>
-void FixedTargetAreaModifier<DIM>::SetParentNormalMean(double newParam)
-{
-    mParentNormalMean = newParam;
-}
-
-template <unsigned DIM>
-void FixedTargetAreaModifier<DIM>::SetParentNormalVariance(double newParam)
-{
-    mParentNormalVariance = newParam;
-}
-
-template <unsigned DIM>
-void FixedTargetAreaModifier<DIM>::SetShapeIndex(double newParam)
-{
-    mShapeIndex = newParam;
 }
 
 template class FixedTargetAreaModifier<1>;

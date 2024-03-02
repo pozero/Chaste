@@ -1,22 +1,11 @@
 #ifndef POLARITYMODIFIER_HPP_
 #define POLARITYMODIFIER_HPP_
 
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
 #include "AbstractCellBasedSimulationModifier.hpp"
 
 class PolarityModifier : public AbstractCellBasedSimulationModifier<2>
 {
 private:
-    friend class boost::serialization::access;
-
-    template <class Archive>
-    void serialization(Archive& archive, const unsigned int version)
-    {
-        archive& boost::serialization::base_object<AbstractCellBasedSimulationModifier>(*this);
-        archive & mNeighborAlignmentIntensity;
-    }
-
     double mNeighborAlignmentIntensity;
 
     double mShapeAlignmentIntensity;

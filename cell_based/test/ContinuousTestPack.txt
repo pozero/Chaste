@@ -98,3 +98,4 @@ tutorial/TestVisualizingWithParaviewTutorial.hpp
 
 pozero/TestVoronoiGenerator.hpp
 pozero/TestPolarityForceWithSociality.hpp
+pozero/TestMidterm.hpp

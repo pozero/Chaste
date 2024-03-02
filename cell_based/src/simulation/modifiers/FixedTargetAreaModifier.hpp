@@ -36,6 +36,8 @@ private:
 public:
     FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double shape_index);
 
+    FixedTargetAreaModifier(unsigned cell_count, double uniform_target_area, double shape_index);
+
     virtual ~FixedTargetAreaModifier();
 
     virtual void UpdateAtEndOfTimeStep(AbstractCellPopulation<DIM, DIM>& rCellPopulation);
@@ -43,18 +45,6 @@ public:
     virtual void SetupSolve(AbstractCellPopulation<DIM, DIM>& rCellPopulation, std::string outputDirectory);
 
     virtual void OutputSimulationModifierParameters(out_stream& rParamsFile);
-
-    double GetParentNormalMean() const;
-
-    double GetParentNormalVariance() const;
-
-    double GetShapeIndex() const;
-
-    void SetParentNormalMean(double newParam);
-
-    void SetParentNormalVariance(double newParam);
-
-    void SetShapeIndex(double newParam);
 };
 
 #endif /*FIXEDTARGETAREAMODIFIER_HPP_*/
