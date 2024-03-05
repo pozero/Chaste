@@ -44,7 +44,7 @@ void ParameterizedTest(std::string const& path)
         READ_PARAMETER(reader, double, neightbor_alignment_intensity);
         READ_PARAMETER(reader, double, shape_alignment_intensity);
         READ_PARAMETER(reader, double, protrusion_alignment_intensity);
-        READ_PARAMETER(reader, double, correlation_sample_bucket_width);
+        READ_PARAMETER(reader, unsigned, correlation_sample_bucket_count);
 
         HoneycombVertexMeshGenerator generator{ cell_col, cell_row, false, 0.01, 0.001, initial_area };
         MutableVertexMesh<2, 2>* p_mesh = generator.GetMesh();
@@ -78,6 +78,7 @@ void ParameterizedTest(std::string const& path)
             aabb_max[1] = std::max(aabb_max[1], position[1]);
         }
         auto p_box_boundary_condition = boost::make_shared<BoxBoundaryCondition>(&cell_population, aabb_max[1], aabb_min[1], aabb_min[0], aabb_max[0]);
+        double const box_diameter = norm_2(aabb_max - aabb_min);
         simulator.AddCellPopulationBoundaryCondition(p_box_boundary_condition);
 
         MAKE_PTR(MyNagaiHondaForce<2>, p_nagai_honda_force);
@@ -107,7 +108,7 @@ void ParameterizedTest(std::string const& path)
         p_polarity_modifier->SetDt(simulator.GetDt());
         simulator.AddSimulationModifier(p_polarity_modifier);
 
-        auto p_vertex_velocity_correlation_tracker = boost::make_shared<VertexVelocityCorrelationTrackingModifier>(correlation_sample_bucket_width, file_finder.GetLeafName() + "VertexVelocityCorrelation");
+        auto p_vertex_velocity_correlation_tracker = boost::make_shared<VertexVelocityCorrelationTrackingModifier>(box_diameter, correlation_sample_bucket_count, file_finder.GetLeafName() + "VertexVelocityCorrelation");
         simulator.AddSimulationModifier(p_vertex_velocity_correlation_tracker);
 
         auto p_vertex_displacement_tracker = boost::make_shared<VertexDisplacementTrackingModifier>(simulator.GetDt(), file_finder.GetLeafName() + "VertexDisplacement");
@@ -128,24 +129,24 @@ class TestMidterm : public AbstractCellBasedTestSuite
 {
 public:
     void TestMidtermNonUniformTargetArea07() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea07"); }
-    // void TestMidtermNonUniformTargetArea08() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea08"); }
-    // void TestMidtermNonUniformTargetArea09() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea09"); }
-    // void TestMidtermNonUniformTargetArea10() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea10"); }
-    // void TestMidtermNonUniformTargetArea11() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea11"); }
-    // void TestMidtermNonUniformTargetArea12() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea12"); }
+    void TestMidtermNonUniformTargetArea08() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea08"); }
+    void TestMidtermNonUniformTargetArea09() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea09"); }
+    void TestMidtermNonUniformTargetArea10() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea10"); }
+    void TestMidtermNonUniformTargetArea11() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea11"); }
+    void TestMidtermNonUniformTargetArea12() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea12"); }
     void TestMidtermNonUniformTargetArea13() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea13"); }
-    // void TestMidtermNonUniformTAVariance01() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance01"); }
-    // void TestMidtermNonUniformTAVariance02() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance02"); }
-    // void TestMidtermNonUniformTAVariance03() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance03"); }
-    // void TestMidtermNonUniformTAVariance04() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance04"); }
-    // void TestMidtermNonUniformTAVariance05() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance05"); }
-    // void TestMidtermUniformTargetArea07() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea07"); }
-    // void TestMidtermUniformTargetArea08() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea08"); }
-    // void TestMidtermUniformTargetArea09() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea09"); }
-    // void TestMidtermUniformTargetArea10() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea10"); }
-    // void TestMidtermUniformTargetArea11() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea11"); }
-    // void TestMidtermUniformTargetArea12() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea12"); }
-    // void TestMidtermUniformTargetArea13() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea13"); }
+    void TestMidtermNonUniformTAVariance01() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance01"); }
+    void TestMidtermNonUniformTAVariance02() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance02"); }
+    void TestMidtermNonUniformTAVariance03() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance03"); }
+    void TestMidtermNonUniformTAVariance04() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance04"); }
+    void TestMidtermNonUniformTAVariance05() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance05"); }
+    void TestMidtermUniformTargetArea07() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea07"); }
+    void TestMidtermUniformTargetArea08() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea08"); }
+    void TestMidtermUniformTargetArea09() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea09"); }
+    void TestMidtermUniformTargetArea10() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea10"); }
+    void TestMidtermUniformTargetArea11() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea11"); }
+    void TestMidtermUniformTargetArea12() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea12"); }
+    void TestMidtermUniformTargetArea13() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea13"); }
 };
 
 #endif

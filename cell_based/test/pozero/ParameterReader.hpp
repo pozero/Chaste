@@ -76,11 +76,11 @@ public:
         }
     }
 
-    double get(std::string const& key) const
+    double get(const char* key) const
     {
         try
         {
-            return m_data.find(key)->second;
+            return m_data.find(std::string{ key })->second;
         }
         catch (std::exception& exp)
         {

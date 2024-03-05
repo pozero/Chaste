@@ -10,8 +10,8 @@ double get_correlation(c_vector<double, 2> const& v1, c_vector<double, 2> const&
     return dot_product / norm_product;
 }
 
-VertexVelocityCorrelationTrackingModifier::VertexVelocityCorrelationTrackingModifier(double bucket_width, std::string const& output_file)
-        : AbstractCellBasedSimulationModifier<2>(), mBucketWidth(bucket_width), mOutputFileName(output_file)
+VertexVelocityCorrelationTrackingModifier::VertexVelocityCorrelationTrackingModifier(double cell_population_diameter, unsigned bucket_count, std::string const& output_file)
+        : AbstractCellBasedSimulationModifier<2>(), mBucketWidth(cell_population_diameter / bucket_count), mOutputFileName(output_file)
 {
 }
 

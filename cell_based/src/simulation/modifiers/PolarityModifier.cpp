@@ -202,7 +202,7 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
     for (unsigned node_idx = 0; node_idx < num_nodes; ++node_idx)
     {
         Node<2>* node = p_cell_population->GetNode(node_idx);
-        c_vector<double, 2> const node_location = node->rGetLocation();
+        c_vector<double, 2> const& node_location = node->rGetLocation();
         // location
         node->AddNodeAttribute(node_location[0]);
         node->AddNodeAttribute(node_location[1]);

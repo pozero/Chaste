@@ -24,7 +24,7 @@ private:
 public:
     VertexVelocityCorrelationTrackingModifier() = delete;
 
-    VertexVelocityCorrelationTrackingModifier(double bucket_width, std::string const& output_file);
+    VertexVelocityCorrelationTrackingModifier(double cell_population_diameter, unsigned bucket_count, std::string const& output_file);
 
     virtual ~VertexVelocityCorrelationTrackingModifier();
 
