@@ -13,9 +13,11 @@ private:
 
     std::string mOutputFileName;
 
-    std::map<int, double> mCorrelationCoefficients;
+    std::map<double, double> mCorrelations;
 
-    std::map<int, int> mCorrelationCoefficientCounts;
+    std::map<double, double> mDistances;
+
+    std::map<double, int> mBucketCounts;
 
     std::ofstream mOutputFile;
 

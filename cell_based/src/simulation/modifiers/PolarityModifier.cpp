@@ -82,20 +82,17 @@ void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPop
         Node<2>* node = p_cell_population->GetNode(node_idx);
         c_vector<double, 2> const& current_location = node->rGetLocation();
         std::vector<double>& node_attributes = node->rGetNodeAttributes();
-        if (node_attributes.size() == 6)
+        if (node_attributes.size() == 4)
         {
             c_vector<double, 2> last_location = zero_vector<double>(2);
             last_location[0] = node_attributes[0];
             last_location[1] = node_attributes[1];
             node_last_location[node_idx] = last_location;
-            c_vector<double, 2> const displacement = current_location - last_location;
-            c_vector<double, 2> const velocity = displacement * one_dt;
+            c_vector<double, 2> const velocity = (current_location - last_location) * one_dt;
             node_attributes[0] = current_location[0];
             node_attributes[1] = current_location[1];
             node_attributes[2] = velocity[0];
             node_attributes[3] = velocity[1];
-            node_attributes[4] = displacement[0];
-            node_attributes[5] = displacement[1];
         }
         else if (node_attributes.empty())
         {
@@ -103,8 +100,6 @@ void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPop
             node_last_location[node_idx] = current_location;
             node->AddNodeAttribute(current_location[0]);
             node->AddNodeAttribute(current_location[1]);
-            node->AddNodeAttribute(0.0);
-            node->AddNodeAttribute(0.0);
             node->AddNodeAttribute(0.0);
             node->AddNodeAttribute(0.0);
         }
@@ -199,6 +194,8 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
         p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->SetItem("centroid y", centroid[1]);
         p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->SetItem("velocity x", 0.0);
         p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->SetItem("velocity y", 0.0);
+        p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->SetItem("initial centroid x", centroid[0]);
+        p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->SetItem("initial centroid y", centroid[1]);
     }
 
     unsigned const num_nodes = p_cell_population->GetNumNodes();
@@ -210,9 +207,6 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
         node->AddNodeAttribute(node_location[0]);
         node->AddNodeAttribute(node_location[1]);
         // velocity
-        node->AddNodeAttribute(0.0);
-        node->AddNodeAttribute(0.0);
-        // displacement
         node->AddNodeAttribute(0.0);
         node->AddNodeAttribute(0.0);
     }

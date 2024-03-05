@@ -2,17 +2,17 @@
 #include "VertexBasedCellPopulation.hpp"
 
 VertexDisplacementTrackingModifier::VertexDisplacementTrackingModifier(double dt, std::string const& output_file)
-        : AbstractCellBasedSimulationModifier<2>(), mDt(dt), mOutputFileName(output_file), mVerticesDisplacementAverage(1, 0.0)
+        : AbstractCellBasedSimulationModifier<2>(), mDt(dt), mOutputFileName(output_file), mMSD(1, 0.0)
 {
 }
 
 VertexDisplacementTrackingModifier::~VertexDisplacementTrackingModifier()
 {
     mOutputFile << "Time, Displacement\n";
-    for (uint32_t i = 0; i < mVerticesDisplacementAverage.size(); ++i)
+    for (uint32_t i = 0; i < mMSD.size(); ++i)
     {
         double const time = i * mDt;
-        double const displacement = mVerticesDisplacementAverage[i];
+        double const displacement = mMSD[i];
         mOutputFile << time << ", " << displacement << '\n';
     }
     mOutputFile.close();
@@ -20,18 +20,24 @@ VertexDisplacementTrackingModifier::~VertexDisplacementTrackingModifier()
 
 void VertexDisplacementTrackingModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPopulation)
 {
-    VertexBasedCellPopulation<2>* p_cell_population = dynamic_cast<VertexBasedCellPopulation<2>*>(&rCellPopulation);
-    unsigned const num_nodes = p_cell_population->GetNumNodes();
-    double displacement_squared_sum = 0.0;
-    for (unsigned node_idx = 0; node_idx < num_nodes; ++node_idx)
+    VertexBasedCellPopulation<2>* cell_population = dynamic_cast<VertexBasedCellPopulation<2>*>(&rCellPopulation);
+    unsigned const num_cells = cell_population->GetNumElements();
+    double msd = 0.0;
+    for (typename VertexMesh<2, 2>::VertexElementIterator elem_iter = cell_population->rGetMesh().GetElementIteratorBegin();
+         elem_iter != cell_population->rGetMesh().GetElementIteratorEnd();
+         ++elem_iter)
     {
-        Node<2>* node = p_cell_population->GetNode(node_idx);
-        std::vector<double>& node_attributes = node->rGetNodeAttributes();
-        double const displacement = node_attributes[4] * node_attributes[4] + node_attributes[5] * node_attributes[5];
-        displacement_squared_sum += displacement;
+        unsigned const elem_idx = elem_iter->GetIndex();
+        auto cell_data = cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData();
+        double const centroid_x = cell_data->GetItem("centroid x");
+        double const centroid_y = cell_data->GetItem("centroid y");
+        double const initial_centroid_x = cell_data->GetItem("initial centroid x");
+        double const initial_centroid_y = cell_data->GetItem("initial centroid y");
+        double const squared_displacement = (centroid_x - initial_centroid_x) * (centroid_x - initial_centroid_x) + (centroid_y - initial_centroid_y) * (centroid_y - initial_centroid_y);
+        msd += squared_displacement;
     }
-    displacement_squared_sum /= static_cast<double>(num_nodes);
-    mVerticesDisplacementAverage.push_back(mVerticesDisplacementAverage.back() + displacement_squared_sum);
+    msd /= num_cells;
+    mMSD.push_back(msd);
 }
 
 void VertexDisplacementTrackingModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, std::string outputDirectory)

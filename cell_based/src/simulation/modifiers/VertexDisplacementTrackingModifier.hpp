@@ -12,7 +12,7 @@ private:
 
     std::string mOutputFileName;
 
-    std::vector<double> mVerticesDisplacementAverage;
+    std::vector<double> mMSD;
 
     std::ofstream mOutputFile;
 
