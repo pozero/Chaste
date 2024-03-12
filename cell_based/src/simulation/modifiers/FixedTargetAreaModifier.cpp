@@ -4,19 +4,21 @@
 #include <boost/math/special_functions/erf.hpp>
 
 template <unsigned DIM>
-FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double shape_index) : AbstractCellBasedSimulationModifier<DIM>(),
-                                                                                                                                                           mCellTargetArea(cell_count, 0.0),
-                                                                                                                                                           mCellTargetPerimeter(cell_count, 0.0),
-                                                                                                                                                           mCellTargetAreaCategory(cell_count, 0.0),
-                                                                                                                                                           mParentNormalMean(parent_normal_mean),
-                                                                                                                                                           mParentNormalVariance(parent_normal_variance),
-                                                                                                                                                           mShapeIndex(shape_index)
+FixedTargetAreaModifier<DIM>::FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double area_min, double area_max, double shape_index) : AbstractCellBasedSimulationModifier<DIM>(),
+                                                                                                                                                                                             mCellTargetArea(cell_count, 0.0),
+                                                                                                                                                                                             mCellTargetPerimeter(cell_count, 0.0),
+                                                                                                                                                                                             mCellTargetAreaCategory(cell_count, 0.0),
+                                                                                                                                                                                             mParentNormalMean(parent_normal_mean),
+                                                                                                                                                                                             mParentNormalVariance(parent_normal_variance),
+                                                                                                                                                                                             mMin(area_min),
+                                                                                                                                                                                             mMax(area_max),
+                                                                                                                                                                                             mShapeIndex(shape_index)
 {
 
-    double const phi_0 = ParentNormalCDF(0.0);
-    double const phi_pos_inf = 1.0;
-    double const quantile_33 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.33);
-    double const quantile_66 = TruncatedNormalQuantile(phi_0, phi_pos_inf, 0.66);
+    double const phi_min = ParentNormalCDF(area_min);
+    double const phi_max = ParentNormalCDF(area_max);
+    double const quantile_33 = TruncatedNormalQuantile(phi_min, phi_max, 0.33);
+    double const quantile_66 = TruncatedNormalQuantile(phi_min, phi_max, 0.66);
     for (unsigned int i = 0; i < cell_count; ++i)
     {
         double const target_area = TruncatedNormal();
@@ -61,7 +63,7 @@ double FixedTargetAreaModifier<DIM>::TruncatedNormal() const
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     double val = p_gen->NormalRandomDeviate(mParentNormalMean, mParentNormalVariance);
-    while (val <= 0.0)
+    while (val < mMin || val > mMax)
     {
         val = p_gen->NormalRandomDeviate(mParentNormalMean, mParentNormalVariance);
     }

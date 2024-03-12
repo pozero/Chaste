@@ -25,6 +25,10 @@ private:
 
     double mParentNormalVariance;
 
+    double mMin;
+
+    double mMax;
+
     double mShapeIndex;
 
     double TruncatedNormal() const;
@@ -34,7 +38,7 @@ private:
     double TruncatedNormalQuantile(double phi_a, double phi_b, double precentage) const;
 
 public:
-    FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double shape_index);
+    FixedTargetAreaModifier(unsigned cell_count, double parent_normal_mean, double parent_normal_variance, double area_min, double area_max, double shape_index);
 
     FixedTargetAreaModifier(unsigned cell_count, double uniform_target_area, double shape_index);
 

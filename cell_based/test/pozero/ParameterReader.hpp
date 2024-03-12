@@ -34,7 +34,6 @@ public:
     void parse(std::string const& path)
     {
         m_slices.clear();
-        m_data.clear();
         std::ifstream fstream{ path };
         if (!fstream.is_open())
         {

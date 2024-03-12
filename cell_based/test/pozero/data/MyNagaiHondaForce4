@@ -1,8 +1,0 @@
-cell_col: 5
-cell_row: 5
-sampling_time_multiple: 50
-end_time: 20
-nagai_honda_deformation_energy_parameter: 100
-nagai_honda_membrane_surface_energy_parameter: 10
-target_area_parent_normal_mean: 1
-target_area_parent_normal_variance: 0.2

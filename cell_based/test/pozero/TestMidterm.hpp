@@ -21,12 +21,16 @@
 #include "VertexDisplacementTrackingModifier.hpp"
 #include "ParameterReader.hpp"
 
-void ParameterizedTest(std::string const& path)
+void ParameterizedTest(std::string const& base, std::string const& config)
 {
     try
     {
-        FileFinder file_finder{ path, RelativeTo::ChasteSourceRoot };
         ParameterReader reader{};
+        {
+            FileFinder file_finder{ base, RelativeTo::ChasteSourceRoot };
+            reader.parse(file_finder.GetAbsolutePath());
+        }
+        FileFinder file_finder{ config, RelativeTo::ChasteSourceRoot };
         reader.parse(file_finder.GetAbsolutePath());
 
         READ_PARAMETER(reader, unsigned, cell_col);
@@ -40,6 +44,8 @@ void ParameterizedTest(std::string const& path)
         READ_PARAMETER(reader, double, initial_area);
         READ_PARAMETER(reader, double, target_area_parent_normal_mean);
         READ_PARAMETER(reader, double, target_area_parent_normal_variance);
+        READ_PARAMETER(reader, double, target_area_min);
+        READ_PARAMETER(reader, double, target_area_max);
         READ_PARAMETER(reader, double, shape_index);
         READ_PARAMETER(reader, double, neightbor_alignment_intensity);
         READ_PARAMETER(reader, double, shape_alignment_intensity);
@@ -97,7 +103,7 @@ void ParameterizedTest(std::string const& path)
         }
         else
         {
-            p_fixed_target_area_modifier = boost::make_shared<FixedTargetAreaModifier<2> >(cell_col * cell_row, target_area_parent_normal_mean, target_area_parent_normal_variance, shape_index);
+            p_fixed_target_area_modifier = boost::make_shared<FixedTargetAreaModifier<2> >(cell_col * cell_row, target_area_parent_normal_mean, target_area_parent_normal_variance, target_area_min, target_area_max, shape_index);
         }
         simulator.AddSimulationModifier(p_fixed_target_area_modifier);
 
@@ -128,25 +134,29 @@ void ParameterizedTest(std::string const& path)
 class TestMidterm : public AbstractCellBasedTestSuite
 {
 public:
-    void TestMidtermNonUniformTargetArea07() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea07"); }
-    void TestMidtermNonUniformTargetArea08() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea08"); }
-    void TestMidtermNonUniformTargetArea09() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea09"); }
-    void TestMidtermNonUniformTargetArea10() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea10"); }
-    void TestMidtermNonUniformTargetArea11() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea11"); }
-    void TestMidtermNonUniformTargetArea12() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea12"); }
-    void TestMidtermNonUniformTargetArea13() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTargetArea13"); }
-    void TestMidtermNonUniformTAVariance01() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance01"); }
-    void TestMidtermNonUniformTAVariance02() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance02"); }
-    void TestMidtermNonUniformTAVariance03() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance03"); }
-    void TestMidtermNonUniformTAVariance04() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance04"); }
-    void TestMidtermNonUniformTAVariance05() { ParameterizedTest("cell_based/test/pozero/data/MidtermNonUniformTAVariance05"); }
-    void TestMidtermUniformTargetArea07() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea07"); }
-    void TestMidtermUniformTargetArea08() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea08"); }
-    void TestMidtermUniformTargetArea09() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea09"); }
-    void TestMidtermUniformTargetArea10() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea10"); }
-    void TestMidtermUniformTargetArea11() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea11"); }
-    void TestMidtermUniformTargetArea12() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea12"); }
-    void TestMidtermUniformTargetArea13() { ParameterizedTest("cell_based/test/pozero/data/MidtermUniformTargetArea13"); }
+    void TestBase() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermBase"); }
+
+    // void TestMidtermNonUniformTargetArea17() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea17"); }
+    // void TestMidtermNonUniformTargetArea18() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea18"); }
+    // void TestMidtermNonUniformTargetArea19() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea19"); }
+    // void TestMidtermNonUniformTargetArea20() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea20"); }
+    // void TestMidtermNonUniformTargetArea21() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea21"); }
+    // void TestMidtermNonUniformTargetArea22() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea22"); }
+    // void TestMidtermNonUniformTargetArea23() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTargetArea23"); }
+
+    // void TestMidtermNonUniformTAVariance08() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTAVariance08"); }
+    // void TestMidtermNonUniformTAVariance09() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTAVariance09"); }
+    // void TestMidtermNonUniformTAVariance10() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTAVariance10"); }
+    // void TestMidtermNonUniformTAVariance11() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTAVariance11"); }
+    // void TestMidtermNonUniformTAVariance12() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermNonUniformTAVariance12"); }
+
+    // void TestMidtermUniformTargetArea17() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea17"); }
+    // void TestMidtermUniformTargetArea18() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea18"); }
+    // void TestMidtermUniformTargetArea19() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea19"); }
+    // void TestMidtermUniformTargetArea20() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea20"); }
+    // void TestMidtermUniformTargetArea21() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea21"); }
+    // void TestMidtermUniformTargetArea22() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea22"); }
+    // void TestMidtermUniformTargetArea23() { ParameterizedTest("cell_based/test/pozero/data/MidtermBase", "cell_based/test/pozero/data/MidtermUniformTargetArea23"); }
 };
 
 #endif
