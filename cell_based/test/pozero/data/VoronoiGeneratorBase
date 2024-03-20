@@ -1,0 +1,12 @@
+random_seed: 0
+sampling_time_multiple: 50
+end_time: 30
+nagai_honda_deformation_energy_parameter: 0.0005
+nagai_honda_membrane_surface_energy_parameter: 0.0005
+cell_count: 100
+uniform_taret_area: 0
+target_area_parent_normal_mean: 5.0
+target_area_parent_normal_variance: 2.0
+target_area_min: 0.3
+target_area_max: 20.0
+shape_index: 4.0

@@ -37,6 +37,9 @@ add_definitions(-DANSI_DECLARATORS -DTRILIBRARY)
 
 chaste_do_component(mesh)
 
+find_library(gmp gmp)
+target_link_libraries(chaste_mesh PRIVATE gmp)
+
 # Set compiler flags for specific third party source files
 set(PREDICATES_FLAGS "")
 set(TETGEN_FLAGS "")
