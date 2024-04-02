@@ -57,6 +57,7 @@ void MyNagaiHondaForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>& r
     {
         c_vector<double, DIM> deformation_contribution = zero_vector<double>(DIM);
         c_vector<double, DIM> membrane_surface_tension_contribution = zero_vector<double>(DIM);
+        c_vector<double, DIM> surface_expansion_contribution = zero_vector<double>(DIM);
         std::set<unsigned> const& relavant_elem_indices = p_cell_population->GetNode(node_idx)->rGetContainingElementIndices();
         for (std::set<unsigned>::const_iterator iter = relavant_elem_indices.begin();
              iter != relavant_elem_indices.end();
@@ -71,8 +72,10 @@ void MyNagaiHondaForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>& r
 
             c_vector<double, DIM> elem_perimeter_gradient = p_cell_population->rGetMesh().GetPerimeterGradientOfElementAtNode(p_element, local_idx);
             membrane_surface_tension_contribution -= mNagaiHondaMembraneSurfaceEnergyParameter * (element_perimeters[elem_idx] - target_perimeters[elem_idx]) * elem_perimeter_gradient;
+
+            surface_expansion_contribution += mCellExpansionTerm * elem_area_gradient;
         }
-        c_vector<double, DIM> force_on_node = deformation_contribution + membrane_surface_tension_contribution;
+        c_vector<double, DIM> force_on_node = deformation_contribution + membrane_surface_tension_contribution + surface_expansion_contribution;
         p_cell_population->GetNode(node_idx)->AddAppliedForceContribution(force_on_node);
     }
 }
@@ -99,6 +102,12 @@ template <unsigned DIM>
 void MyNagaiHondaForce<DIM>::SetMembraneSurfaceEnergyParameter(double newParam)
 {
     mNagaiHondaMembraneSurfaceEnergyParameter = newParam;
+}
+
+template <unsigned DIM>
+void MyNagaiHondaForce<DIM>::SetCellExpansionTerm(double newParam)
+{
+    mCellExpansionTerm = newParam;
 }
 
 template <unsigned DIM>

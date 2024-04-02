@@ -28,6 +28,8 @@ private:
 
     double mNagaiHondaMembraneSurfaceEnergyParameter;
 
+    double mCellExpansionTerm;
+
 public:
     MyNagaiHondaForce();
 
@@ -42,6 +44,8 @@ public:
     void SetDeformationEnergyParameter(double newParam);
 
     void SetMembraneSurfaceEnergyParameter(double newParam);
+
+    void SetCellExpansionTerm(double newParam);
 
     virtual void OutputForceParameters(out_stream& rParamsFile);
 };

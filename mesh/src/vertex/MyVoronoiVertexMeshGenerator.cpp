@@ -33,6 +33,7 @@ MyVoronoiVertexMeshGenerator::MyVoronoiVertexMeshGenerator(
     {
         total_area += area;
     }
+    total_area *= 0.5;
     double const average_area = total_area / (double)cell_count;
     double const site_coord_range = std::sqrt(total_area);
     double const site_side_length = std::sqrt(average_area);
@@ -63,8 +64,8 @@ MyVoronoiVertexMeshGenerator::MyVoronoiVertexMeshGenerator(
         center += (sites[i] - CGAL::ORIGIN);
     }
     center = CGAL::ORIGIN + (center - CGAL::ORIGIN) / (double)sites.size();
-    uint32_t const exterior_point_side_count = 10;
-    double const exterior_point_radius = 0.8;
+    uint32_t const exterior_point_side_count = 8;
+    double const exterior_point_radius = 0.65;
     std::vector<weight_point> exterior_points{};
     for (uint32_t i = 1; i <= exterior_point_side_count; ++i)
     {
