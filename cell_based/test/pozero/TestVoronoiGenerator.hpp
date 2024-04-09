@@ -6,6 +6,7 @@
 #include "BoxBoundaryCondition.hpp"
 #include "PolarityForce.hpp"
 #include "PolarityModifier.hpp"
+#include "SimplePolarityModifier.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "MyVoronoiVertexMeshGenerator.hpp"
 #include "Cell.hpp"
@@ -37,8 +38,8 @@ void ParameterizedTest(std::string const& base, std::string const& config)
         READ_PARAMETER(reader, double, nagai_honda_deformation_energy_parameter);
         READ_PARAMETER(reader, double, nagai_honda_membrane_surface_energy_parameter);
         READ_PARAMETER(reader, double, nagai_honda_cell_expansion_parameter);
-        READ_PARAMETER(reader, double, self_propelling_parameter);
-        READ_PARAMETER(reader, double, random_force_scale);
+        READ_PARAMETER(reader, double, align_propelling_parameter);
+        READ_PARAMETER(reader, double, random_propelling_parameter);
         READ_PARAMETER(reader, unsigned, cell_count);
         READ_PARAMETER(reader, unsigned, uniform_taret_area);
         READ_PARAMETER(reader, double, target_area_parent_normal_mean);
@@ -49,6 +50,7 @@ void ParameterizedTest(std::string const& base, std::string const& config)
         READ_PARAMETER(reader, double, neightbor_alignment_intensity);
         READ_PARAMETER(reader, double, shape_alignment_intensity);
         READ_PARAMETER(reader, double, protrusion_alignment_intensity);
+        READ_PARAMETER(reader, double, random_polarity_delta);
 
         RandomNumberGenerator::Instance()->Reseed(random_seed);
 
@@ -100,12 +102,14 @@ void ParameterizedTest(std::string const& base, std::string const& config)
         p_nagai_honda_force->SetCellExpansionTerm(nagai_honda_cell_expansion_parameter);
         simulator.AddForce(p_nagai_honda_force);
 
-        MAKE_PTR(PolarityForce, p_polarity_force);
-        p_polarity_force->SetSelfPropellingParameter(self_propelling_parameter);
-        simulator.AddForce(p_polarity_force);
+        std::string const align_polarity{ "align polarity theta" };
+        std::string const random_polarity{ "random polarity theta" };
 
-        auto random_force = boost::make_shared<RandomForce>(random_force_scale);
-        simulator.AddForce(random_force);
+        boost::shared_ptr<PolarityForce> align_polarity_force = boost::make_shared<PolarityForce>(align_propelling_parameter, align_polarity);
+        simulator.AddForce(align_polarity_force);
+
+        boost::shared_ptr<PolarityForce> random_polarity_force = boost::make_shared<PolarityForce>(random_propelling_parameter, random_polarity);
+        simulator.AddForce(random_polarity_force);
 
         boost::shared_ptr<FixedTargetAreaModifier> fixed_target_area_modifier{};
         if (uniform_taret_area)
@@ -119,12 +123,16 @@ void ParameterizedTest(std::string const& base, std::string const& config)
             simulator.AddSimulationModifier(fixed_target_area_modifier);
         }
 
-        MAKE_PTR(PolarityModifier, p_polarity_modifier);
-        p_polarity_modifier->SetNeighborAlignmentIntensity(neightbor_alignment_intensity);
-        p_polarity_modifier->SetShapeAlignmentIntensity(shape_alignment_intensity);
-        p_polarity_modifier->SetProtrusionAlignmentIntensity(protrusion_alignment_intensity);
-        p_polarity_modifier->SetDt(simulator.GetDt());
-        simulator.AddSimulationModifier(p_polarity_modifier);
+        boost::shared_ptr<PolarityModifier> polarity_modifier = boost::make_shared<PolarityModifier>(neightbor_alignment_intensity,
+                                                                                                     shape_alignment_intensity,
+                                                                                                     protrusion_alignment_intensity,
+                                                                                                     simulator.GetDt(),
+                                                                                                     align_polarity);
+        simulator.AddSimulationModifier(polarity_modifier);
+
+        boost::shared_ptr<SimplePolarityModifier> simple_polarity_modifier = boost::make_shared<SimplePolarityModifier>(random_polarity_delta,
+                                                                                                                        random_polarity);
+        simulator.AddSimulationModifier(simple_polarity_modifier);
 
         simulator.Solve();
 
@@ -140,14 +148,14 @@ void ParameterizedTest(std::string const& base, std::string const& config)
 class TestVoronoiGenerator : public AbstractCellBasedTestSuite
 {
 public:
-    // void TestBase() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorBase"); }
+    void TestBase() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorBase"); }
 
-    void TestExpansion1() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorExpansion1"); }
-    void TestExpansion2() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorExpansion2"); }
+    // void TestExpansion1() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorExpansion1"); }
+    // void TestExpansion2() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorExpansion2"); }
 
-    void TestNagai1() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai1"); }
-    void TestNagai2() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai2"); }
-    void TestNagai3() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai3"); }
+    // void TestNagai1() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai1"); }
+    // void TestNagai2() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai2"); }
+    // void TestNagai3() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai3"); }
 };
 
 #endif

@@ -19,8 +19,10 @@ private:
 
     double mPolarityDelta;
 
+    std::string mPolarityName;
+
 public:
-    SimplePolarityModifier();
+    SimplePolarityModifier(double polarity_delta, std::string polarity_name);
 
     virtual ~SimplePolarityModifier();
 

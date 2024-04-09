@@ -1,6 +1,7 @@
 #include "RandomForce.hpp"
 
-RandomForce::RandomForce(double scale) : mScale(scale)
+RandomForce::RandomForce(double scale_mean, double scale_variance, double scale_maximum)
+        : mScaleDist(scale_mean, scale_variance, 1.0, scale_maximum)
 {
 }
 
@@ -23,7 +24,7 @@ void RandomForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulatio
         contribution[0] = rng->ranf();
         contribution[1] = rng->ranf();
         contribution = contribution / norm_2(contribution);
-        contribution = mScale * contribution;
+        contribution = mScaleDist.Generate() * contribution;
         p_cell_population->GetNode(node_idx)->AddAppliedForceContribution(contribution);
     }
 }

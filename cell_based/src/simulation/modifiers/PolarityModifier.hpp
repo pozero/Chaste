@@ -14,8 +14,10 @@ private:
 
     double mDt;
 
+    std::string mPolarityName;
+
 public:
-    PolarityModifier();
+    PolarityModifier(double neighbor, double shape, double protrusion, double dt, std::string polarity_name);
 
     virtual ~PolarityModifier();
 
@@ -24,20 +26,6 @@ public:
     virtual void SetupSolve(AbstractCellPopulation<2>& rCellPopulation, std::string outputDirectory);
 
     virtual void OutputSimulationModifierParameters(out_stream& rParamsFile);
-
-    double GetNeighborAlignmentIntensity() const;
-
-    double GetShapeAlignmentIntensity() const;
-
-    double GetProtrusionAlignmentIntensity() const;
-
-    void SetNeighborAlignmentIntensity(double newParam);
-
-    void SetShapeAlignmentIntensity(double newParam);
-
-    void SetProtrusionAlignmentIntensity(double newParam);
-
-    void SetDt(double dt);
 };
 
 #endif

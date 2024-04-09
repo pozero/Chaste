@@ -5,14 +5,15 @@
 
 #include "AbstractForce.hpp"
 #include "VertexBasedCellPopulation.hpp"
+#include "TruncatedNormal.hpp"
 
 class RandomForce : public AbstractForce<2>
 {
 private:
-    double mScale;
+    TruncatedNormal mScaleDist;
 
 public:
-    RandomForce(double scale);
+    RandomForce(double scale_mean, double scale_variance, double scale_maximum);
 
     virtual ~RandomForce();
 

@@ -1,8 +1,7 @@
 #include "PolarityForce.hpp"
 
-PolarityForce::PolarityForce() : mSelfPropellingParameter(0.5)
-{
-}
+PolarityForce::PolarityForce(double self_propelling, std::string polarity_name) : mSelfPropellingParameter(self_propelling),
+                                                                                  mPolarityName(std::move(polarity_name)) {}
 
 PolarityForce::~PolarityForce()
 {
@@ -26,14 +25,7 @@ void PolarityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulat
     {
         unsigned const elem_idx = elem_iter->GetIndex();
         double theta = 0.0;
-        try
-        {
-            theta = p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->GetItem("polarity theta");
-        }
-        catch (Exception&)
-        {
-            EXCEPTION("PolarityForce need polarity theta to proceed");
-        }
+        theta = p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData()->GetItem(mPolarityName);
         elem_polarities[elem_idx][0] = cos(theta);
         elem_polarities[elem_idx][1] = sin(theta);
     }
@@ -53,16 +45,6 @@ void PolarityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulat
         }
         p_cell_population->GetNode(node_idx)->AddAppliedForceContribution(active_force);
     }
-}
-
-double PolarityForce::GetSelfPropellingParameter() const
-{
-    return mSelfPropellingParameter;
-}
-
-void PolarityForce::SetSelfPropellingParameter(double newParam)
-{
-    mSelfPropellingParameter = newParam;
 }
 
 void PolarityForce::OutputForceParameters(out_stream& rParamsFile)

@@ -30,12 +30,7 @@ static c_vector<double, 2> get_eigenvector_biggest_eigenvalue(c_matrix<double, 2
     return ret;
 }
 
-PolarityModifier::PolarityModifier() : mNeighborAlignmentIntensity(0.05),
-                                       mShapeAlignmentIntensity(0.1),
-                                       mProtrusionAlignmentIntensity(3.5),
-                                       mDt(0.0)
-{
-}
+PolarityModifier::PolarityModifier(double neighbor, double shape, double protrusion, double dt, std::string polarity_name) : mNeighborAlignmentIntensity(neighbor), mShapeAlignmentIntensity(shape), mProtrusionAlignmentIntensity(protrusion), mDt(dt), mPolarityName(std::move(polarity_name)) {}
 
 PolarityModifier::~PolarityModifier()
 {
@@ -119,7 +114,7 @@ void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPop
         unsigned const elem_idx = elem_iter->GetIndex();
         c_matrix<double, 2, 2> shape_tensor = zero_matrix<double>(2, 2);
         boost::shared_ptr<CellData> p_cell_data = p_cell_population->GetCellUsingLocationIndex(elem_idx)->GetCellData();
-        double theta = p_cell_data->GetItem("polarity theta");
+        double theta = p_cell_data->GetItem(mPolarityName);
         std::set<unsigned> neighbor_elem_indices{};
         unsigned const node_cnt = elem_iter->GetNumNodes();
         c_vector<double, 2> node_location = elem_iter->GetNodeLocation(0);
@@ -159,7 +154,7 @@ void PolarityModifier::UpdateAtEndOfTimeStep(AbstractCellPopulation<2>& rCellPop
         shape_alignment = sin(eigenvector_theta_biggest_eigenvalue - theta);
 
         theta += mDt * (mNeighborAlignmentIntensity * neighbor_alignment + mShapeAlignmentIntensity * shape_alignment + mProtrusionAlignmentIntensity * protrusion_alignment);
-        p_cell_data->SetItem("polarity theta", theta);
+        p_cell_data->SetItem(mPolarityName, theta);
     }
 }
 
@@ -174,7 +169,7 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
     for (CellPtr p_cell : rCellPopulation.rGetCells())
     {
         double const theta = 2.0 * M_PI * p_gen->ranf();
-        p_cell->GetCellData()->SetItem("polarity theta", theta);
+        p_cell->GetCellData()->SetItem(mPolarityName, theta);
     }
 
     VertexBasedCellPopulation<2>* p_cell_population = static_cast<VertexBasedCellPopulation<2>*>(&rCellPopulation);
@@ -214,38 +209,4 @@ void PolarityModifier::SetupSolve(AbstractCellPopulation<2>& rCellPopulation, st
 
 void PolarityModifier::OutputSimulationModifierParameters(out_stream& rParamsFile)
 {
-}
-
-double PolarityModifier::GetNeighborAlignmentIntensity() const
-{
-    return mNeighborAlignmentIntensity;
-}
-double PolarityModifier::GetShapeAlignmentIntensity() const
-{
-    return mShapeAlignmentIntensity;
-}
-
-double PolarityModifier::GetProtrusionAlignmentIntensity() const
-{
-    return mProtrusionAlignmentIntensity;
-}
-
-void PolarityModifier::SetNeighborAlignmentIntensity(double newParam)
-{
-    mNeighborAlignmentIntensity = newParam;
-}
-
-void PolarityModifier::SetShapeAlignmentIntensity(double newParam)
-{
-    mShapeAlignmentIntensity = newParam;
-}
-
-void PolarityModifier::SetProtrusionAlignmentIntensity(double newParam)
-{
-    mProtrusionAlignmentIntensity = newParam;
-}
-
-void PolarityModifier::SetDt(double dt)
-{
-    mDt = dt;
 }

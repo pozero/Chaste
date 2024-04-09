@@ -1,3 +1,5 @@
+#ifndef TRUNCATEDNORMAL_HPP_
+#define TRUNCATEDNORMAL_HPP_
 #include "RandomNumberGenerator.hpp"
 
 class TruncatedNormal
@@ -16,6 +18,18 @@ private:
 public:
     TruncatedNormal(double parent_mean, double parent_variance, double min, double max)
             : mParentNormalMean(parent_mean), mParentNormalVariance(parent_variance), mMin(min), mMax(max) {}
+
+    double Generate() const
+    {
+
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        double val = p_gen->NormalRandomDeviate(mParentNormalMean, mParentNormalVariance);
+        while (val < mMin || val > mMax)
+        {
+            val = p_gen->NormalRandomDeviate(mParentNormalMean, mParentNormalVariance);
+        }
+        return val;
+    }
 
     void Generate(uint32_t count)
     {
@@ -71,3 +85,4 @@ public:
         return mMax;
     }
 };
+#endif

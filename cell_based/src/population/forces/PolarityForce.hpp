@@ -25,16 +25,14 @@ private:
 
     double mSelfPropellingParameter;
 
+    std::string mPolarityName;
+
 public:
-    PolarityForce();
+    PolarityForce(double self_propelling, std::string polarity_name);
 
     virtual ~PolarityForce();
 
     virtual void AddForceContribution(AbstractCellPopulation<2>& rCellPopulation);
-
-    double GetSelfPropellingParameter() const;
-
-    void SetSelfPropellingParameter(double newParam);
 
     virtual void OutputForceParameters(out_stream& rParamsFile);
 };
