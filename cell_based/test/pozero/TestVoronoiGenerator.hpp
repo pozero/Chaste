@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "AbstractCellBasedTestSuite.hpp"
 #include "BoxBoundaryCondition.hpp"
+#include "NagaiHondaForce.hpp"
 #include "PolarityForce.hpp"
 #include "PolarityModifier.hpp"
 #include "SimplePolarityModifier.hpp"
@@ -19,7 +20,6 @@
 #include "MyNagaiHondaForce.hpp"
 #include "FixedTargetAreaModifier.hpp"
 #include "ParameterReader.hpp"
-#include "RandomForce.hpp"
 
 void ParameterizedTest(std::string const& base, std::string const& config)
 {
@@ -93,7 +93,6 @@ void ParameterizedTest(std::string const& base, std::string const& config)
             aabb_max[1] = std::max(aabb_max[1], position[1]);
         }
         auto p_box_boundary_condition = boost::make_shared<BoxBoundaryCondition>(&cell_population, aabb_max[1], aabb_min[1], aabb_min[0], aabb_max[0]);
-        // double const box_diameter = norm_2(aabb_max - aabb_min);
         simulator.AddCellPopulationBoundaryCondition(p_box_boundary_condition);
 
         MAKE_PTR(MyNagaiHondaForce<2>, p_nagai_honda_force);
@@ -106,7 +105,7 @@ void ParameterizedTest(std::string const& base, std::string const& config)
         std::string const random_polarity{ "random polarity theta" };
 
         boost::shared_ptr<PolarityForce> align_polarity_force = boost::make_shared<PolarityForce>(align_propelling_parameter, align_polarity);
-        simulator.AddForce(align_polarity_force);
+        // simulator.AddForce(align_polarity_force);
 
         boost::shared_ptr<PolarityForce> random_polarity_force = boost::make_shared<PolarityForce>(random_propelling_parameter, random_polarity);
         simulator.AddForce(random_polarity_force);
@@ -148,14 +147,10 @@ void ParameterizedTest(std::string const& base, std::string const& config)
 class TestVoronoiGenerator : public AbstractCellBasedTestSuite
 {
 public:
-    void TestBase() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorBase"); }
+    // void TestBase() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorBase"); }
 
-    // void TestExpansion1() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorExpansion1"); }
-    // void TestExpansion2() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorExpansion2"); }
-
-    // void TestNagai1() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai1"); }
-    // void TestNagai2() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai2"); }
-    // void TestNagai3() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNagai3"); }
+    void TestNonUniform() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorNonUniform"); }
+    void TestUniform() { ParameterizedTest("cell_based/test/pozero/data/VoronoiGeneratorBase", "cell_based/test/pozero/data/VoronoiGeneratorUniform"); }
 };
 
 #endif

@@ -34,12 +34,12 @@ void PolarityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulat
     {
         c_vector<double, 2> active_force = zero_vector<double>(2);
         std::set<unsigned> const& relavant_elem_indices = p_cell_population->GetNode(node_idx)->rGetContainingElementIndices();
-        double const scalar = mSelfPropellingParameter / static_cast<double>(relavant_elem_indices.size());
         for (std::set<unsigned>::const_iterator iter = relavant_elem_indices.begin();
              iter != relavant_elem_indices.end();
              ++iter)
         {
             VertexElement<2, 2>* p_element = p_cell_population->GetElement(*iter);
+            double const scalar = mSelfPropellingParameter / static_cast<double>(p_element->GetNumNodes());
             unsigned const elem_idx = p_element->GetIndex();
             active_force += scalar * elem_polarities[elem_idx];
         }
