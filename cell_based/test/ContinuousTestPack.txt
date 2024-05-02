@@ -96,4 +96,4 @@ tutorial/TestRunningTumourSpheroidSimulationsTutorial.hpp
 tutorial/TestRunningVertexBasedSimulationsTutorial.hpp
 tutorial/TestVisualizingWithParaviewTutorial.hpp
 
-pozero/TestVoronoiGenerator.hpp
+pozero/TestFinal.hpp

@@ -37,6 +37,10 @@ void VertexDisplacementTrackingModifier::UpdateAtEndOfTimeStep(AbstractCellPopul
         msd += squared_displacement;
     }
     msd /= num_cells;
+    if (std::isnan(msd))
+    {
+        EXCEPTION("MSD isn't a number");
+    }
     mMSD.push_back(msd);
 }
 

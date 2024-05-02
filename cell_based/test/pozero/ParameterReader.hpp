@@ -3,6 +3,7 @@
 
 #include "Exception.hpp"
 #include "FileFinder.hpp"
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 
@@ -37,7 +38,8 @@ public:
         std::ifstream fstream{ path };
         if (!fstream.is_open())
         {
-            EXCEPTION("Can't open file " + path);
+            std::cerr << "Can't open file " + path;
+            std::terminate();
         }
         char c = 0;
         std::string buf{};
